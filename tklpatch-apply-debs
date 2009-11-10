@@ -1,0 +1,35 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" != "2" ]]; then
+    echo "Syntax: $(basename $0) rootfs-dir debs-dir"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+rootfs=$1
+debs=$2
+
+[ -d $rootfs ] || fatal "no such directory: $rootfs"
+[ -d $debs ] || fatal "no such directory: $debs"
+
+if [ -n "$debs" ]; then
+    [ -d "$debs" ] || fatal "no such directory: $debs"
+    packages=$(find $debs -type f -name '*.deb')
+    packages_count=$(echo $packages | wc -w)
+
+    if [ "$packages_count" != 0 ]; then
+        cp $packages $rootfs
+        echo "# installing $packages_count debs from $debs"
+        tklpatch-chroot $rootfs "dpkg -i /*.deb; rm -f /*.deb"
+    fi
+fi
