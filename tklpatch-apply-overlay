@@ -1,0 +1,26 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" != "2" ]]; then
+    echo "Syntax: $(basename $0) rootfs-dir overlay-dir"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+rootfs=$1
+overlay=$2
+
+[ -d $rootfs ] || fatal "no such directory: $rootfs"
+[ -d $overlay ] || fatal "no such directory: $overlay"
+
+echo "# applying overlay $overlay"
+cp -TdR $overlay $rootfs
