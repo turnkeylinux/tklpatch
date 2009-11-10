@@ -1,0 +1,44 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+# Depends: genisoimage
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" < "1" ]]; then
+    echo "Syntax: $(basename $0) cdroot-dir [newimage.iso]"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    echo "  TKLPATCH_ISOLABEL    ISO label (default: turnkey-patched)."
+    exit 1
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+cdroot=$1
+shift 1;
+
+newimage=$@
+if [ -z "$newimage" ]; then
+    name="$(basename $cdroot)"
+    name="$(echo $name | sed 's/.cdroot$//')"
+    newimage=$name-patched.iso
+fi
+
+[ -d $cdroot ] || fatal "no such directory: $cdroot"
+[ -e $newimage ] && fatal "file already exists: $newimage"
+
+set ${TKLPATCH_ISOLABEL:=turnkey-patched}
+
+echo "# generating $newimage"
+genisoimage -o $newimage -r -J -l \
+        -V $TKLPATCH_ISOLABEL \
+        -b isolinux/isolinux.bin \
+        -c isolinux/boot.cat \
+        -no-emul-boot \
+        -boot-load-size 4 \
+        -boot-info-table $cdroot/
+
