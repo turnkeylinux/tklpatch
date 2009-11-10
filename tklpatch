@@ -1,0 +1,146 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+# depends on squashfs-tools, genisoimage
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+chroot() {
+    root=$1
+    shift 1;
+
+    bin=$(which chroot)
+    $bin $root env -i \
+        HOME=/root \
+        PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/bin:/usr/sbin \
+        DEBIAN_FRONTEND=noninteractive \
+        /bin/sh -c "$@"
+}
+
+apply_patch() {
+    patch=$1
+    rootfs=$2
+
+    if [ -f $patch/plan ]; then
+        PLAN=$patch/plan
+    fi
+    if [ -d $patch/debs ]; then
+        DEBS=$patch/debs
+    fi
+    if [ -d $patch/overlay ]; then
+        OVERLAY=$patch/overlay
+    fi
+    if [ -x $patch/conf ]; then
+        CHROOT_CONF=$patch/conf
+    fi
+
+    if [ -n "$PLAN" ]; then
+        echo "# installing packages from $PLAN"
+        #chroot $rootfs 'apt-get update'
+        #chroot $rootfs 'apt-get install $(cat $PLAN | extract_plan)'
+    fi
+
+    if [ -n "$DEBS" ]; then
+        [ -d "$DEBS" ] || fatal "no such directory: $DEBS"
+        packages=$(find $DEBS -type f -name '*.deb')
+        packages_count=$(echo $packages | wc -w)
+
+        if [ "$packages_count" != 0 ]; then
+            cp $packages $rootfs
+            echo "# installing $packages_count debs from $DEBS"
+            chroot $rootfs 'dpkg -i /*.deb; rm -f /*.deb'
+        fi
+    fi
+
+    if [ -n "$OVERLAY" ]; then
+        echo "# applying overlay $OVERLAY"
+        cp -TdR $OVERLAY $rootfs
+    fi
+
+    if [ -n "$CHROOT_CONF" ]; then
+        echo "# executing config script $CHROOT_CONF"
+        script_path=/tmp/tklpatch/$(basename $CHROOT_CONF)
+        mkdir -p $rootfs/$(dirname $script_path)
+
+        cp $CHROOT_CONF $rootfs/$script_path
+        chmod +x $rootfs/$script_path
+
+        chroot $rootfs $script_path
+        rm -rf $rootfs/tmp/tklpatch
+    fi
+}
+
+if [[ "$#" != "2" ]]; then
+    echo "Syntax: $0 patch-dir|patch.tar.gz image.iso"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ "$(id -u)" != "0" ] && fatal "must be run as root"
+
+patch=$1
+isofile=$2
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+name="$(basename $isofile)"
+name="$(echo $name | sed 's/.iso$//')"
+
+isolabel="$(basename $patch)"
+isolabel="$(echo $patch | sed 's/.tar.gz$//')"
+
+rootfs=$name.rootfs
+cdroot=$name.cdroot
+
+echo "# extracting root filesystem and isolinux from ISO"
+mkdir -p $cdroot
+mkdir -p $name.mount
+mount -o loop $isofile $name.mount
+unsquashfs -d $rootfs $name.mount/casper/*root.squashfs
+cp -a $name.mount/isolinux $cdroot/
+umount $name.mount
+rmdir $name.mount
+
+[ -d $rootfs ] || fatal "no such directory: $rootfs"
+[ -d $cdroot ] || fatal "no such directory: $cdroot"
+
+if [ -f $patch ]; then
+    patch_tmp=$(mktemp -d)
+    echo "# extracting patch $arg1 to $patch_tmp"
+    tar -zxf $arg1 -C $patch_tmp
+    patch_dir=$patch_tmp
+else
+    patch_dir=$patch
+fi
+
+[ -d $patch_dir ] || fatal "no such directory: $patch_dir"
+
+echo "# applying patch $patch_dir"
+apply_patch $patch_dir $rootfs
+[ -z "$patch_tmp" ] && rm -rf $patch_tmp
+
+echo "# populating cdroot"
+mkdir -p $cdroot/casper
+cp $rootfs/usr/lib/syslinux/isolinux.bin $cdroot/isolinux
+cp $rootfs/boot/$(basename $(readlink $rootfs/vmlinuz)) $cdroot/casper/vmlinuz
+cp $rootfs/boot/$(basename $(readlink $rootfs/initrd.img)) $cdroot/casper/initrd.gz
+
+mksquashfs $rootfs $cdroot/casper/10root.squashfs -no-sparse
+
+echo "# generating $name-patched.iso"
+genisoimage -o $name-patched.iso -r -J -l \
+        -V $isolabel \
+        -b isolinux/isolinux.bin \
+        -c isolinux/boot.cat \
+        -no-emul-boot \
+        -boot-load-size 4 \
+        -boot-info-table $cdroot/
+
+# delete temporary rootfs and cdroot unless TKLCONV_DEBUG
+[ -z "$TKLPATCH_DEBUG" ] && rm -rf $rootfs
+[ -z "$TKLPATCH_DEBUG" ] && rm -rf $cdroot
+
