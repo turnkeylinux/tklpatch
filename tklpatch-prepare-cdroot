@@ -1,0 +1,37 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+# Depends: squashfs-tools
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+chopslash() {
+    echo $(dirname $1)$(basename $1)
+}
+
+if [[ "$#" != "2" ]]; then
+    echo "Syntax: $(basename $0) cdroot-dir rootfs-dir"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+cdroot=$1
+rootfs=$2
+
+[ -d $cdroot ] || fatal "no such directory: $cdroot"
+[ -d $rootfs ] || fatal "no such directory: $rootfs"
+
+echo "# preparing cdroot"
+mkdir -p $cdroot/casper
+cp $rootfs/usr/lib/syslinux/isolinux.bin $cdroot/isolinux
+cp $rootfs/boot/$(basename $(readlink $rootfs/vmlinuz)) $cdroot/casper/vmlinuz
+cp $rootfs/boot/$(basename $(readlink $rootfs/initrd.img)) $cdroot/casper/initrd.gz
+
+mksquashfs $rootfs $cdroot/casper/10root.squashfs -no-sparse
+
