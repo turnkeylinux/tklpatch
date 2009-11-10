@@ -1,0 +1,34 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" != "2" ]]; then
+    echo "Syntax: $(basename $0) rootfs-dir plan"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+rootfs=$1
+plan=$2
+
+[ -d $rootfs ] || fatal "no such directory: $rootfs"
+[ -f $plan ] || fatal "no such file: $plan"
+
+echo "# installing packages from $plan"
+
+packages=""
+while read line; do
+    p=$(echo $line | sed "s|[ /t]#.*||")
+    packages="$packages $p"
+done < $plan
+
+tklpatch-chroot $rootfs "apt-get update"
+tklpatch-chroot $rootfs "apt-get -y install $packages"

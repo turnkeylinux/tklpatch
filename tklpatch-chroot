@@ -1,0 +1,34 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" < "1" ]]; then
+    echo "Syntax: $(basename $0) root-dir [ command ... ]"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ "$(id -u)" != "0" ] && fatal "must be run as root"
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+root=$1
+shift 1;
+command=$@
+
+[ -d $root ] || fatal "no such directory: $root"
+[ -n "$command" ] || command=/bin/bash
+
+echo "# chroot execute: $command"
+bin=$(which chroot)
+$bin $root env -i \
+    HOME=/root \
+    PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/bin:/usr/sbin \
+    DEBIAN_FRONTEND=noninteractive \
+    /bin/sh -c "$command"
