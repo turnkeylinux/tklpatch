@@ -1,0 +1,44 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+# Depends: squashfs-tools
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" != "1" ]]; then
+    echo "Syntax: $(basename $0) isofile"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ "$(id -u)" != "0" ] && fatal "must be run as root"
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+isofile=$1
+
+[ -f $isofile ] || fatal "no such file: $isofile"
+
+name="$(basename $isofile)"
+name="$(echo $name | sed 's/.iso$//')"
+
+rootfs=$name.rootfs
+cdroot=$name.cdroot
+
+[ -d $cdroot ] && fatal "directory already exists: $cdroot"
+[ -d $rootfs ] && fatal "directory already exists: $rootfs"
+[ -d $name.mount ] && fatal "directory already exists: $name.mount"
+
+echo "# extracting root filesystem and isolinux from ISO"
+mkdir -p $cdroot
+mkdir -p $name.mount
+mount -o loop $isofile $name.mount
+unsquashfs -d $rootfs $name.mount/casper/*root.squashfs
+cp -a $name.mount/isolinux $cdroot/
+umount $name.mount
+rmdir $name.mount
+
