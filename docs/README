@@ -1,0 +1,88 @@
+TurnKey Linux Customization Mechanism
+=====================================
+
+The Customization Mechanism's objective is to provide a dead-simple way
+in which an existing appliance can be extended/tweaked by a given 
+end-user/developer.
+
+Full documentation: http://www.turnkeylinux.org/docs/tklpatch
+
+Example tweaks
+--------------
+
+- Tweaking a configuration file
+- Adding data files
+- Adding a package
+- Creating a brand new appliance leveraging a generic appliance such as
+  Core, LAMP, Rails, etc.
+
+Design goals
+------------
+
+- Well designed mechanism (simple, generic and powerful)  
+- Very simple technically to reduce barriers to entry
+- Encourage developers to publish their patches easily
+
+    - Incorporate good developments upstream to TurnKey appliances
+    - Establish opensource ecosystem of patches
+    - Satisfy long tail of special needs
+
+Example usage
+-------------
+
+Patching an appliance with a published patch
+
+    tklpatch image.iso patch.tar.gz
+    The patched image will be called image-patched.iso
+
+Implementation/Development
+--------------------------
+
+tklpatch has a modular implementation to simplify development and
+improve the development cycle.
+
+Syntax:
+    tklpatch image.iso patch-dir|patch.tar.gz
+
+        tklpatch-extract-iso isofile
+        tklpatch-apply rootfs-dir patch-dir|patch.tar.gz
+
+            tklpatch-apply-plan rootfs-dir plan
+            tklpatch-apply-debs rootfs-dir debs-dir
+            tklpatch-apply-overlay rootfs-dir overlay-dir
+            tklpatch-apply-conf rootfs-dir conf
+
+    tklpatch-prepare-cdroot cdroot-dir rootfs-dir
+    tklpatch-geniso cdroot-dir [newimage.iso]
+
+    tklpatch-bundle patch-dir
+    tklpatch-chroot root-dir [ command ... ]
+
+Patches
+-------
+
+A tklpatch structure can include some, or all of the following:
+
+    patch/
+        plan        # list of packages to install (via apt-get)
+        debs/       # debian packages in this directory will be installed
+        overlay/    # overlay applied to root filesystem
+        conf        # configuration script to execute in chroot (rootfs)
+
+Additionally, patch/ can contain a patches/ folder, which may contain
+nested patches (unpacked or bundled as a gzipped tarball). Nested
+patches will be installed in alpha-numeric ordering *prior* to the patch
+that contains them (enabling patch patching).
+
+    patch1/
+        patches/
+            patch2/
+            patch3.tar.gz
+            patch4.tar.gz
+                patches/
+                    patch5/
+
+Nested patches facilitate modular design as changes don't need to be
+bundled together, which makes sharing much more useful and powerful.
+
+
