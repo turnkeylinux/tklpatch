@@ -1,0 +1,35 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" != "2" ]]; then
+    echo "Syntax: $(basename $0) rootfs-dir patch-dir"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+rootfs=$1
+patch_dir=$2
+
+[ -d $rootfs ] || fatal "no such directory: $rootfs"
+[ -d $patch_dir ] || fatal "no such directory: $patch_dir"
+
+if [ -z "$TKLPATCH_ISOLABEL" ]; then
+    isolabel="$(basename $patch_dir)"
+    export TKLPATCH_ISOLABEL=$isolabel
+fi
+
+echo "# applying patch $patch_dir"
+[ -e $patch_dir/plan ] && tklpatch-apply-plan $rootfs $patch_dir/plan
+[ -d $patch_dir/debs ] && tklpatch-apply-debs $rootfs $patch_dir/debs
+[ -d $patch_dir/overlay ] && tklpatch-apply-overlay $rootfs $patch_dir/overlay
+[ -x $patch_dir/conf ] && tklpatch-apply-conf $rootfs $patch_dir/conf
+
