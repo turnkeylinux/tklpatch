@@ -1,4 +1,4 @@
-progname=tklpatch
+progname=$(shell awk '/^Source/ {print $$2}' debian/control)
 prefix = /usr/local
 INSTALL_PATH_BIN=$(prefix)/bin
 INSTALL_PATH_SHARE=$(prefix)/share/$(progname)
