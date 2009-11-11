@@ -11,8 +11,9 @@ usage:
 	@echo '    make uninstall'
 
 install:
-	cp bin/* $(INSTALL_PATH_BIN)
+	mkdir -p $(INSTALL_PATH_BIN)
 	mkdir -p $(INSTALL_PATH_SHARE)
+	cp bin/* $(INSTALL_PATH_BIN)
 	cp -a docs $(INSTALL_PATH_SHARE)
 
 uninstall:
