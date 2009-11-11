@@ -1,0 +1,30 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+# Depends: tar, gzip
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" != "1" ]]; then
+    echo "Syntax: $(basename $0) patch-dir"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+patch_dir=$1
+
+patch_tarball="$(basename $patch_dir)"
+patch_tarball="$patch_tarball.tar.gz"
+
+[ -d $patch_dir ] || fatal "no such directory: $patch_dir"
+[ -f $patch_tarball ] && fatal "file already exists: $patch_tarball"
+
+echo "# creating tarball $patch_tarball"
+tar -zcf $patch_tarball -C $(dirname $patch_dir) $(basename $patch_dir)
+tar -ztf $patch_tarball
