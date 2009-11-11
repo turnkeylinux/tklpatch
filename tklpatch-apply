@@ -41,6 +41,12 @@ fi
 
 [ -d $patch_dir ] || fatal "no such directory: $patch_dir"
 
+if [ -d $patch_dir/patches ]; then
+    for p in $patch_dir/patches/*; do
+        tklpatch-apply $rootfs $p
+    done
+fi
+
 echo "# applying patch $patch_dir"
 [ -e $patch_dir/plan ] && tklpatch-apply-plan $rootfs $patch_dir/plan
 [ -d $patch_dir/debs ] && tklpatch-apply-debs $rootfs $patch_dir/debs
@@ -50,3 +56,4 @@ echo "# applying patch $patch_dir"
 [ -d "$patch_tmp" ] && rm -rf $patch_tmp
 
 exit 0
+
