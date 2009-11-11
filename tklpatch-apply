@@ -49,3 +49,4 @@ echo "# applying patch $patch_dir"
 
 [ -d "$patch_tmp" ] && rm -rf $patch_tmp
 
+exit 0
