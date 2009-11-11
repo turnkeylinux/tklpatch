@@ -7,7 +7,7 @@ fatal() {
 }
 
 if [[ "$#" != "2" ]]; then
-    echo "Syntax: $(basename $0) rootfs-dir patch-dir"
+    echo "Syntax: $(basename $0) rootfs-dir patch-dir|patch.tar.gz"
     echo "Environment variables:"
     echo 
     echo "  TKLPATCH_DEBUG       Turn on debugging."
@@ -17,19 +17,35 @@ fi
 [ -n "$TKLPATCH_DEBUG" ] && set -x
 
 rootfs=$1
-patch_dir=$2
+patch=$2
 
 [ -d $rootfs ] || fatal "no such directory: $rootfs"
-[ -d $patch_dir ] || fatal "no such directory: $patch_dir"
+[ -e $patch ] || fatal "no such file/directory: $patch"
+
+name="$(basename $patch)"
+name="$(echo $name | sed 's/.tar.gz$//')"
 
 if [ -z "$TKLPATCH_ISOLABEL" ]; then
-    isolabel="$(basename $patch_dir)"
-    export TKLPATCH_ISOLABEL=$isolabel
+    export TKLPATCH_ISOLABEL=$name
+    echo "TKLPATCH_ISOLABEL: $name"
 fi
+
+if [ -f $patch ]; then
+    patch_tmp=$(mktemp -d)
+    echo "# extracting patch $patch to $patch_tmp"
+    tar -zxf $patch -C $patch_tmp
+    patch_dir=$patch_tmp/$name
+else
+    patch_dir=$patch
+fi
+
+[ -d $patch_dir ] || fatal "no such directory: $patch_dir"
 
 echo "# applying patch $patch_dir"
 [ -e $patch_dir/plan ] && tklpatch-apply-plan $rootfs $patch_dir/plan
 [ -d $patch_dir/debs ] && tklpatch-apply-debs $rootfs $patch_dir/debs
 [ -d $patch_dir/overlay ] && tklpatch-apply-overlay $rootfs $patch_dir/overlay
 [ -x $patch_dir/conf ] && tklpatch-apply-conf $rootfs $patch_dir/conf
+
+[ -d "$patch_tmp" ] && rm -rf $patch_tmp
 
