@@ -1,0 +1,33 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+if [[ "$#" != "2" ]]; then
+    echo "Syntax: $(basename $0) rootfs-dir conf"
+    echo "Environment variables:"
+    echo 
+    echo "  TKLPATCH_DEBUG       Turn on debugging."
+    exit 1
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+rootfs=$1
+chroot_conf=$2
+
+[ -d $rootfs ] || fatal "no such directory: $rootfs"
+[ -x $chroot_conf ] || fatal "no such file / not executable: $chroot_conf"
+
+echo "# executing config script $chroot_conf"
+script_path=/tmp/tklpatch/$(basename $chroot_conf)
+mkdir -p $rootfs/$(dirname $script_path)
+
+cp $chroot_conf $rootfs/$script_path
+chmod +x $rootfs/$script_path
+
+tklpatch-chroot $rootfs $script_path
+rm -rf $rootfs/tmp/tklpatch
