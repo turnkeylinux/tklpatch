@@ -47,7 +47,6 @@ Syntax:
         tklpatch-extract-iso isofile
         tklpatch-apply rootfs-dir patch-dir|patch.tar.gz
 
-            tklpatch-apply-plan rootfs-dir plan
             tklpatch-apply-debs rootfs-dir debs-dir
             tklpatch-apply-overlay rootfs-dir overlay-dir
             tklpatch-apply-conf rootfs-dir conf
@@ -64,7 +63,6 @@ Patches
 A tklpatch structure can include some, or all of the following:
 
     patch/
-        plan        # list of packages to install (via apt-get)
         debs/       # debian packages in this directory will be installed
         overlay/    # overlay applied to root filesystem
         conf        # configuration script to execute in chroot (rootfs)
