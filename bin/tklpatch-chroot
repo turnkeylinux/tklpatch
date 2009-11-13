@@ -25,6 +25,9 @@ command=$@
 [ -d $root ] || fatal "no such directory: $root"
 [ -n "$command" ] || command=/bin/bash
 
+mount -t proc proc-chroot $root/proc
+mount -t devpts devpts-chroot $root/dev/pts
+
 echo "# chroot execute: $command"
 bin=$(which chroot)
 $bin $root env -i \
@@ -32,3 +35,6 @@ $bin $root env -i \
     PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/bin:/usr/sbin \
     DEBIAN_FRONTEND=noninteractive \
     /bin/sh -c "$command"
+
+umount devpts-chroot
+umount proc-chroot
