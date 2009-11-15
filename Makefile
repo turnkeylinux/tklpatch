@@ -15,6 +15,7 @@ install:
 	mkdir -p $(INSTALL_PATH_SHARE)
 	cp bin/* $(INSTALL_PATH_BIN)
 	cp -a docs $(INSTALL_PATH_SHARE)
+	cp -a examples $(INSTALL_PATH_SHARE)
 
 uninstall:
 	rm $(INSTALL_PATH_BIN)/$(progname)*

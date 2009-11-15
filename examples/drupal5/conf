@@ -1,0 +1,54 @@
+#!/bin/bash -ex
+
+HOSTNAME=drupal5
+
+# set hostname
+echo "$HOSTNAME" > /etc/hostname
+sed -i "s|127.0.1.1 \(.*\)|127.0.1.1 $HOSTNAME|" /etc/hosts
+
+# start mysql daemon
+/etc/init.d/mysql start
+
+# install drupal5
+apt-get update
+DEBIAN_FRONTEND=noninteractive apt-get -y \
+    -o DPkg::Options::=--force-confdef \
+    -o DPkg::Options::=--force-confold \
+    install drupal5
+
+# cleanup after drupal package and setup apache
+rm -rf /etc/apache
+rm -f /etc/apache2/conf.d/drupal.conf
+touch /etc/apache2/conf.d/drupal.conf
+ln -s /etc/drupal/5/apache.conf /etc/apache2/sites-available/drupal5
+
+a2dissite default
+a2ensite drupal5
+a2enmod rewrite
+
+# configure cron related
+CRON_ORIG=/usr/share/drupal5/scripts/cron.sh
+CRON_NEW=/etc/drupal/5/cron.sh
+cp $CRON_ORIG $CRON_NEW
+sed -i "s|http://localhost/drupal5|http://localhost|g" $CRON_NEW
+sed -i "s|$CRON_ORIG|$CRON_NEW|g" /etc/cron.d/drupal5
+
+# complete drupal installation
+/etc/init.d/apache2 start
+curl http://127.0.0.1/install.php?profile=default >/dev/null
+curl http://127.0.0.1/cron.php >/dev/null
+/etc/init.d/apache2 stop
+
+# set files to be writable by webserver (upload and css aggregation)
+chown -R www-data: /var/lib/drupal5/files
+
+# configure drupal to use cleanurls by default
+mysql -uroot --database=drupal5 --execute "insert into variable values('clean_url', 's:1:\"1\";'); delete from cache;"
+
+CONF=/etc/drupal/5/htaccess
+sed -i "s|^  RewriteBase /drupal5$|  #RewriteBase /drupal5|" $CONF
+sed -i "s|^  #RewriteBase /$|  RewriteBase /|" $CONF
+
+# stop mysql daemon
+/etc/init.d/mysql stop
+
