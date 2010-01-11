@@ -9,9 +9,30 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) rootfs-dir patch-dir|patch.tar.gz
+Apply the patch to the extracted root filesystem. 
+
+Patch structure:
+
+    patch-dir/
+        debs/       # custom debian packages (installed with dpkg -i *.deb)
+        overlay/    # overlay applied to root filesystem
+        conf        # configuration script to execute in chroot (rootfs)
+
+This script calls the following sub-scripts:
+
+    1) tklpatch-apply-debs
+       Installs custom deb packages into the extracted root filesystem.
+
+    2) tklpatch-apply-overlay
+       Applies the overlay into the extracted root filesystem.
+
+    3) tklpatch-apply-conf
+       Executes the configuration script chrooted inside the root filesystem.
+
 Environment variables:
 
-    TKLPATCH_DEBUG       Turn on debugging.
+    TKLPATCH_DEBUG       Turn on debugging. Increases verbosity.
+
 EOF
     exit 1
 }

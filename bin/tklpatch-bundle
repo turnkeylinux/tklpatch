@@ -10,6 +10,8 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) patch-dir
+Bundles patch-dir into an easy to distribute tarball.
+
 Environment variables:
 
     TKLPATCH_DEBUG       Turn on debugging.

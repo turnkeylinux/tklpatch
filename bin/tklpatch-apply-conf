@@ -9,9 +9,13 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) rootfs-dir conf
+Executes the configuration script chrooted inside the root filesystem.
+
+This uses the tklpatch-chroot sub-script.
+
 Environment variables:
 
-    TKLPATCH_DEBUG       Turn on debugging.
+    TKLPATCH_DEBUG       Turn on debugging. Increases verbosity.
 EOF
     exit 1
 }

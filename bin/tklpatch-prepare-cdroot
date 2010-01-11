@@ -10,9 +10,11 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) cdroot-dir rootfs-dir
+Prepare cdroot for ISO creation, which mainly compresses the extracted rootfs.
+
 Environment variables:
 
-    TKLPATCH_DEBUG       Turn on debugging.
+    TKLPATCH_DEBUG       Turn on debugging. Increases verbosity.
 EOF
     exit 1
 }

@@ -9,9 +9,48 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) image.iso patch-dir|patch.tar.gz
+Patch ISO build of appliance by applying a patch.
+
+TKLPatch is a set of shell scripts which provide a simple way to customize and
+extend any appliance in the TurnKey Linux virtual appliance library. It's
+designed in the Unix tradition as a modular collection of simple sub-scripts.
+
+This is the top high level script, which calls:
+
+    1) tklpatch-extract-iso         
+       Disassemble the ISO to extract its contents
+
+        1) cdroot: ISO filesystem - contains bootloader and compressed rootfs
+        2) rootfs: uncompressed root filesystem
+
+    2) tklpatch-apply               
+       Apply the patch to the root filesystem. 
+
+       Patch structure:
+
+         patch-dir/
+             debs/       # custom debian packages (installed with dpkg -i *.deb)
+             overlay/    # overlay applied to root filesystem
+             conf        # configuration script to execute in chroot (rootfs)
+
+    3) tklpatch-prepare-cdroot      
+       Prepare cdroot for ISO creation. This mainly compresses the extracted
+       root filesystem.
+
+    4) tklpatch-geniso
+       Generate an ISO from the cdroot.
+
 Environment variables:
 
-    TKLPATCH_DEBUG       Turn on debugging.
+    TKLPATCH_DEBUG       
+
+      Turn on debugging: this makes tklpatch more verbose and prevents
+      deletion of temporary directories.
+
+Example usage:
+
+    TKLPATCH_DEBUG=y tklpatch path/to/turnkey-core.iso mypatch/
+
 EOF
     exit 1
 }

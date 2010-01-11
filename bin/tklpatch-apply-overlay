@@ -9,9 +9,18 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) rootfs-dir overlay-dir
+Applies the files from overlay-dir on top of rootfs-dir.
+Any file in overlay-dir that is also in rootfs-dir will be overwritten.
+
 Environment variables:
 
     TKLPATCH_DEBUG       Turn on debugging.
+
+Example overlay structure:
+
+    # overwrite message of the day
+    patch-dir/overlay/etc/issue 
+
 EOF
     exit 1
 }

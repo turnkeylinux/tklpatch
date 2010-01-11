@@ -10,9 +10,14 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) isofile
+Disassemble the ISO to extract its contents.
+
+    cdroot: ISO filesystem - contains bootloader and compressed rootfs
+    rootfs: uncompressed root filesystem
+
 Environment variables:
 
-    TKLPATCH_DEBUG       Turn on debugging.
+    TKLPATCH_DEBUG       Turn on debugging. Increases verbosity.
 EOF
     exit 1
 }

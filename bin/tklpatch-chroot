@@ -9,9 +9,16 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) root-dir [ command ...]
+Executes command chrooted inside root-dir.
+
+Example usage:
+
+    # this will execute an interactive shell inside turnkey-core.rootfs
+    tklpatch-chroot turnkey-core.rootfs /bin/bash
+
 Environment variables:
 
-    TKLPATCH_DEBUG       Turn on debugging.
+    TKLPATCH_DEBUG       Turn on debugging. Increases verbosity.
 EOF
     exit 1
 }

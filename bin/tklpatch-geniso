@@ -10,9 +10,11 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) cdroot-dir [newimage.iso]
+Generate an ISO from the cdroot.
+
 Environment variables:
 
-    TKLPATCH_DEBUG       Turn on debugging.
+    TKLPATCH_DEBUG       Turn on debugging. Increases verbosity.
     TKLPATCH_ISOLABEL    ISO label (default: turnkey-patched).
 EOF
     exit 1

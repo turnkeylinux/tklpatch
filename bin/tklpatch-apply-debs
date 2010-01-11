@@ -9,6 +9,10 @@ fatal() {
 usage() {
 cat<<EOF
 Syntax: $(basename $0) rootfs-dir debs-dir
+Installs custom deb packages from debs-dir into rootfs-dir.
+
+This uses the tklpatch-chroot sub-script.
+
 Environment variables:
 
     TKLPATCH_DEBUG       Turn on debugging.
