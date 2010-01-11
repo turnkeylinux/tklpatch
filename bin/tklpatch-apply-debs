@@ -39,6 +39,7 @@ if [ -n "$debs" ]; then
     if [ "$packages_count" != 0 ]; then
         cp $packages $rootfs
         echo "# installing $packages_count debs from $debs"
-        tklpatch-chroot $rootfs "dpkg -i /*.deb; rm -f /*.deb"
+        trap "rm -f $rootfs/*.deb" INT TERM EXIT
+        tklpatch-chroot $rootfs "dpkg -i /*.deb"
     fi
 fi
