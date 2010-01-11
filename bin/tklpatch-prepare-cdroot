@@ -7,16 +7,22 @@ fatal() {
     exit 1
 }
 
+usage() {
+cat<<EOF
+Syntax: $(basename $0) cdroot-dir rootfs-dir
+Environment variables:
+
+    TKLPATCH_DEBUG       Turn on debugging.
+EOF
+    exit 1
+}
+
 chopslash() {
     echo $(dirname $1)$(basename $1)
 }
 
 if [[ "$#" != "2" ]]; then
-    echo "Syntax: $(basename $0) cdroot-dir rootfs-dir"
-    echo "Environment variables:"
-    echo 
-    echo "  TKLPATCH_DEBUG       Turn on debugging."
-    exit 1
+    usage
 fi
 
 [ -n "$TKLPATCH_DEBUG" ] && set -x

@@ -6,12 +6,18 @@ fatal() {
     exit 1
 }
 
-if [[ "$#" != "2" ]]; then
-    echo "Syntax: $(basename $0) rootfs-dir patch-dir|patch.tar.gz"
-    echo "Environment variables:"
-    echo 
-    echo "  TKLPATCH_DEBUG       Turn on debugging."
+usage() {
+cat<<EOF
+Syntax: $(basename $0) rootfs-dir patch-dir|patch.tar.gz
+Environment variables:
+
+    TKLPATCH_DEBUG       Turn on debugging.
+EOF
     exit 1
+}
+
+if [[ "$#" != "2" ]]; then
+    usage
 fi
 
 [ -n "$TKLPATCH_DEBUG" ] && set -x
