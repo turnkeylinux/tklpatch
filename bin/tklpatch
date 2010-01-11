@@ -64,6 +64,14 @@ fi
 isofile=$1
 patch=$2
 
+if ! [ -f $isofile ]; then
+    fatal "no such file '$isofile;"
+fi
+
+if ! [ -e $patch ]; then
+    fatal "no such file or directory '$patch'"
+fi
+
 [ -n "$TKLPATCH_DEBUG" ] && set -x
 
 name="$(basename $isofile)"
