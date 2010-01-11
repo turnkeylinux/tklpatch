@@ -1,0 +1,62 @@
+#!/bin/bash -e
+# Copyright (c) 2009 Liraz Siri <liraz@turnkeylinux.org> - all rights reserved
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+usage() {
+cat<<EOF
+Syntax: $(basename $0) new-patch-dir
+Create a new "hello world" example patch.
+
+Environment variables:
+
+    TKLPATCH_DEBUG       Turn on debugging. Increases verbosity.
+EOF
+    exit 1
+}
+
+if [[ "$#" != "1" ]]; then
+    usage
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+
+patchdir=$1
+if [ -d $patchdir ]; then
+    fatal "$patchdir already exists"
+fi
+
+mkdir -p $patchdir
+mkdir -p $patchdir/debs
+
+cat>$patchdir/conf<<'EOF'
+#!/bin/bash -ex
+install()
+{
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get -y \
+        -o DPkg::Options::=--force-confdef \
+        -o DPkg::Options::=--force-confold \
+        install $@
+}
+
+# installs hello - a highly useful package
+install hello
+
+# tell the world what we've done!
+echo 'Hello world - I just patched TurnKey!' >> /etc/issue
+EOF
+
+chmod +x $patchdir/conf
+mkdir -p $patchdir/overlay/usr/local/bin
+
+cat>$patchdir/overlay/usr/local/bin/foo<<'EOF'
+#!/bin/sh
+echo bar
+EOF
+chmod +x $patchdir/overlay/usr/local/bin/foo
+
+echo "Example patch created in '$patchdir'"
