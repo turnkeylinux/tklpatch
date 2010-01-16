@@ -1,0 +1,14 @@
+===================
+v0.91 Release Notes
+===================
+
+- added tklpatch-example example (simpler to get started)
+
+- added descriptive embedded documentation
+
+- bugfixes:
+    - robust cleanup code in extract-iso (clean stale mounts)
+    - set trap to clean up after chroot
+    - temporarily copy resolv.conf from host to chroot
+    - handle cleanup more reliably in apply-debs
+
