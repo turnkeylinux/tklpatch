@@ -20,14 +20,14 @@ Patch structure:
 
 This script calls the following sub-scripts:
 
-    1) tklpatch-apply-debs
-       Installs custom deb packages into the extracted root filesystem.
+    1) tklpatch-apply-conf
+       Executes the configuration script chrooted inside the root filesystem.
 
     2) tklpatch-apply-overlay
        Applies the overlay into the extracted root filesystem.
 
-    3) tklpatch-apply-conf
-       Executes the configuration script chrooted inside the root filesystem.
+    3) tklpatch-apply-debs
+       Installs custom deb packages into the extracted root filesystem.
 
 Environment variables:
 
