@@ -75,9 +75,9 @@ if [ -d $patch_dir/patches ]; then
 fi
 
 echo "# applying patch $patch_dir"
-[ -d $patch_dir/debs ] && tklpatch-apply-debs $rootfs $patch_dir/debs
 [ -d $patch_dir/overlay ] && tklpatch-apply-overlay $rootfs $patch_dir/overlay
 [ -x $patch_dir/conf ] && tklpatch-apply-conf $rootfs $patch_dir/conf
+[ -d $patch_dir/debs ] && tklpatch-apply-debs $rootfs $patch_dir/debs
 
 [ -d "$patch_tmp" ] && rm -rf $patch_tmp
 
