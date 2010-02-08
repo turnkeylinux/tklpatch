@@ -29,6 +29,17 @@ This script calls the following sub-scripts:
     3) tklpatch-apply-conf
        Executes the configuration script chrooted inside the root filesystem.
 
+Advanced usage (configuration hooks):
+
+    The configuration script 'conf' can be replaced with a conf directory
+    containing the following configuration script hooks to be executed in
+    the chroot (rootfs):
+
+        conf/pre-debs       # executed before apply-debs
+        conf/post-debs      # executed after apply-debs
+        conf/pre-overlay    # executed before apply-overlay
+        conf/post-overlay   # executed after apply-overlay
+
 Environment variables:
 
     TKLPATCH_DEBUG       Turn on debugging. Increases verbosity.
@@ -75,8 +86,14 @@ if [ -d $patch_dir/patches ]; then
 fi
 
 echo "# applying patch $patch_dir"
+[ -x $patch_dir/conf/pre-debs ] && tklpatch-apply-conf $rootfs $patch_dir/pre-debs
 [ -d $patch_dir/debs ] && tklpatch-apply-debs $rootfs $patch_dir/debs
+[ -x $patch_dir/conf/post-debs ] && tklpatch-apply-conf $rootfs $patch_dir/post-debs
+
+[ -x $patch_dir/conf/pre-overlay ] && tklpatch-apply-conf $rootfs $patch_dir/pre-overlay
 [ -d $patch_dir/overlay ] && tklpatch-apply-overlay $rootfs $patch_dir/overlay
+[ -x $patch_dir/conf/post-overlay ] && tklpatch-apply-conf $rootfs $patch_dir/post-overlay
+
 [ -x $patch_dir/conf ] && tklpatch-apply-conf $rootfs $patch_dir/conf
 
 [ -d "$patch_tmp" ] && rm -rf $patch_tmp
