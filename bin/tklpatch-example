@@ -8,8 +8,12 @@ fatal() {
 
 usage() {
 cat<<EOF
-Syntax: $(basename $0) new-patch-dir
+Syntax: $(basename $0) [options] new-patch-dir
 Create a new "hello world" example patch.
+
+Options:
+
+    --advanced           Advanced example with configuration hooks
 
 Environment variables:
 
@@ -18,13 +22,24 @@ EOF
     exit 1
 }
 
-if [[ "$#" != "1" ]]; then
-    usage
-fi
+while [ "$1" ]; do
+    case "$1" in
+        --advanced)
+            ADVANCED=y
+            shift
+            ;;
+        *)
+            [ "$patchdir" ] && fatal "too many arguments"
+            patchdir=$1
+            shift
+            ;;
+    esac
+done
+
+[ -z "$patchdir" ] && usage
 
 [ -n "$TKLPATCH_DEBUG" ] && set -x
 
-patchdir=$1
 if [ -d $patchdir ]; then
     fatal "$patchdir already exists"
 fi
@@ -32,7 +47,59 @@ fi
 mkdir -p $patchdir
 mkdir -p $patchdir/debs
 
-cat>$patchdir/conf<<'EOF'
+if [ $ADVANCED ]; then
+    mkdir -p $patchdir/conf
+
+    cat>$patchdir/conf/functions<<'EOF'
+#!/bin/bash -ex
+install()
+{
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get -y \
+        -o DPkg::Options::=--force-confdef \
+        -o DPkg::Options::=--force-confold \
+        install $@
+}
+EOF
+
+    cat>$patchdir/conf/pre-debs<<'EOF'
+#!/bin/bash -ex
+# executed before apply-debs
+
+EOF
+
+    cat>$patchdir/conf/post-debs<<'EOF'
+#!/bin/bash -ex
+# executed before apply-debs
+
+EOF
+
+    cat>$patchdir/conf/pre-overlay<<'EOF'
+#!/bin/bash -ex
+# executed before apply-overlay
+
+# source our custom functions
+cwd=$(dirname $0)
+source $cwd/functions
+
+# installs hello - a highly useful package
+install hello
+EOF
+
+    cat>$patchdir/conf/post-overlay<<'EOF'
+#!/bin/bash -ex
+# executed after apply-overlay
+
+# tell the world what we've done!
+echo 'Hello world - I just patched TurnKey!' >> /etc/issue
+EOF
+
+    chmod +x $patchdir/conf/pre-debs
+    chmod +x $patchdir/conf/post-debs
+    chmod +x $patchdir/conf/pre-overlay
+    chmod +x $patchdir/conf/post-overlay
+else
+    cat>$patchdir/conf<<'EOF'
 #!/bin/bash -ex
 install()
 {
@@ -50,7 +117,10 @@ install hello
 echo 'Hello world - I just patched TurnKey!' >> /etc/issue
 EOF
 
-chmod +x $patchdir/conf
+    chmod +x $patchdir/conf
+fi
+
+
 mkdir -p $patchdir/overlay/usr/local/bin
 
 cat>$patchdir/overlay/usr/local/bin/foo<<'EOF'
@@ -60,3 +130,4 @@ EOF
 chmod +x $patchdir/overlay/usr/local/bin/foo
 
 echo "Example patch created in '$patchdir'"
+
