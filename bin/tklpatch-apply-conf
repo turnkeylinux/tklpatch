@@ -35,7 +35,13 @@ echo "# executing config script $chroot_conf"
 script_path=/tmp/tklpatch/$(basename $chroot_conf)
 mkdir -p $rootfs/$(dirname $script_path)
 
-cp $chroot_conf $rootfs/$script_path
+# copy conf directory if script is not named 'conf' (advanced hooks)
+if [ $(basename $script_path) == "conf" ]; then
+    cp $chroot_conf $rootfs/$script_path
+else
+    cp -a $(dirname $chroot_conf)/* $rootfs/$(dirname $script_path)
+fi
+
 chmod +x $rootfs/$script_path
 
 resolvconf=$rootfs/etc/resolv.conf
