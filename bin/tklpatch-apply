@@ -48,6 +48,10 @@ EOF
     exit 1
 }
 
+chopslash() {
+    echo $1 | sed "s|/$||"
+}
+
 if [[ "$#" != "2" ]]; then
     usage
 fi
@@ -85,16 +89,22 @@ if [ -d $patch_dir/patches ]; then
     done
 fi
 
+rootfs=$(chopslash $rootfs)
+patch_dir=$(chopslash $patch_dir)
+conf_dir=$patch_dir/conf
+
 echo "# applying patch $patch_dir"
-[ -x $patch_dir/conf/pre-debs ] && tklpatch-apply-conf $rootfs $patch_dir/pre-debs
+[ -x $conf_dir/pre-debs ] && tklpatch-apply-conf $rootfs $conf_dir/pre-debs
 [ -d $patch_dir/debs ] && tklpatch-apply-debs $rootfs $patch_dir/debs
-[ -x $patch_dir/conf/post-debs ] && tklpatch-apply-conf $rootfs $patch_dir/post-debs
+[ -x $conf_dir/post-debs ] && tklpatch-apply-conf $rootfs $conf_dir/post-debs
 
-[ -x $patch_dir/conf/pre-overlay ] && tklpatch-apply-conf $rootfs $patch_dir/pre-overlay
+[ -x $conf_dir/pre-overlay ] && tklpatch-apply-conf $rootfs $conf_dir/pre-overlay
 [ -d $patch_dir/overlay ] && tklpatch-apply-overlay $rootfs $patch_dir/overlay
-[ -x $patch_dir/conf/post-overlay ] && tklpatch-apply-conf $rootfs $patch_dir/post-overlay
+[ -x $conf_dir/post-overlay ] && tklpatch-apply-conf $rootfs $conf_dir/post-overlay
 
-[ -x $patch_dir/conf ] && tklpatch-apply-conf $rootfs $patch_dir/conf
+if [ -f $patch_dir/conf ]; then
+    [ -x $patch_dir/conf ] && tklpatch-apply-conf $rootfs $patch_dir/conf
+fi
 
 [ -d "$patch_tmp" ] && rm -rf $patch_tmp
 
