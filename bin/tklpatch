@@ -82,7 +82,7 @@ cdroot=$name.cdroot
 
 tklpatch-extract-iso $isofile
 tklpatch-apply $rootfs $patch
-tklpatch-prepare-cdroot $cdroot $rootfs
+tklpatch-prepare-cdroot $rootfs $cdroot
 tklpatch-geniso $cdroot
 
 # delete temporary rootfs and cdroot unless TKLCONV_DEBUG
