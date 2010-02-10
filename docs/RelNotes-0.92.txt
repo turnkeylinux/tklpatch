@@ -1,0 +1,60 @@
+===================
+v0.92 Release Notes
+===================
+
+* prepare-cdroot cdroot-dir argument is now optional
+
+  rational:
+      - support more use cases (e.g., using tklpatch to package a rootfs that
+        was not extracted from an iso using tklpatch-extractiso)
+
+      - if cdroot-dir is not provided, a minimal isolinux.cfg will be created
+        to automatically boot the image
+
+
+* added support for configuration hooks (advanced usage)
+
+  Advanced usage (configuration hooks):
+  
+      The configuration script 'conf' can be replaced with a conf directory
+      containing the following configuration script hooks to be executed in
+      the chroot (rootfs):
+  
+          conf/pre-debs       # executed before apply-debs
+          conf/post-debs      # executed after apply-debs
+          conf/pre-overlay    # executed before apply-overlay
+          conf/post-overlay   # executed after apply-overlay
+  
+  This is a backwards compatible change, and is optional.
+
+
+* added DRY (don't repeat yourself) support when using configuration
+  hooks
+
+      - provides ability to include generic helper functions or scripts (DRY)
+      - for example:
+          - functions file that includes code snippets common to several hooks
+          - modularization, cleaner implementation, code re-use
+  
+  conf/functions
+  --------------
+  
+  install()
+  {
+      apt-get update
+      DEBIAN_FRONTEND=noninteractive apt-get -y \
+          -o DPkg::Options::=--force-confdef \
+          -o DPkg::Options::=--force-confold \
+          install $@
+  }
+  
+  conf/pre-overlay
+  ----------------
+  
+  source $(dirname $0)/functions
+  install hello
+
+
+* updated tklpatch-example to accept --advanced
+
+
