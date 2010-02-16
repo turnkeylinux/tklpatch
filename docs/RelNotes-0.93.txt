@@ -1,0 +1,11 @@
+===================
+v0.93 Release Notes
+===================
+
+- support applying patch in running system
+  for example: tklpatch-apply / patch.tar.gz
+
+  gotcha: running system must be configured for tklpatch expected state,
+          unless ofcourse the patch checks for discrepancies
+          e.g., services, passwords, etc.
+
