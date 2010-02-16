@@ -44,11 +44,13 @@ fi
 
 chmod +x $rootfs/$script_path
 
-resolvconf=$rootfs/etc/resolv.conf
-mv $resolvconf $resolvconf.bak
-cp /etc/resolv.conf $resolvconf
+if [ ! "$rootfs" == "/" ]; then
+    resolvconf=$rootfs/etc/resolv.conf
+    mv $resolvconf $resolvconf.bak
+    cp /etc/resolv.conf $resolvconf
+    trap "[ -f $resolvconf.bak ] && mv $resolvconf.bak $resolvconf" INT TERM EXIT
+fi
 
-trap "[ -f $resolvconf.bak ] && mv $resolvconf.bak $resolvconf" INT TERM EXIT
 tklpatch-chroot $rootfs $script_path
 
 rm -rf $rootfs/tmp/tklpatch
