@@ -48,7 +48,7 @@ if [ ! "$rootfs" == "/" ]; then
     resolvconf=$rootfs/etc/resolv.conf
     mv $resolvconf $resolvconf.bak
     cp /etc/resolv.conf $resolvconf
-    trap "[ -f $resolvconf.bak ] && mv $resolvconf.bak $resolvconf" INT TERM EXIT
+    trap "[[ -f $resolvconf.bak || -h $resolvconf.bak ]] && mv $resolvconf.bak $resolvconf" INT TERM EXIT
 fi
 
 tklpatch-chroot $rootfs $script_path
