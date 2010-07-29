@@ -65,6 +65,7 @@ fi
 echo "# chroot execute: $command"
 bin=$(which chroot)
 $bin $root env -i \
+    TERM=$TERM \
     HOME=/root \
     PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/bin:/usr/sbin \
     DEBIAN_FRONTEND=noninteractive \
