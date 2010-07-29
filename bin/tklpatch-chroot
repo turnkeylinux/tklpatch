@@ -40,10 +40,14 @@ command=$@
 
 if [ ! "$root" == "/" ]; then
     resolvconf=$root/etc/resolv.conf
+    if ! [ -f $root/etc/debian_chroot ]; then
+        echo tklpatch > $root/etc/debian_chroot
+        traphook="rm -f /etc/debian_chroot;"
+    fi
     if ! [ -f $resolvconf.bak ]; then
         mv $resolvconf $resolvconf.bak
         cp /etc/resolv.conf $resolvconf
-        traphook="[[ -f $resolvconf.bak || -h $resolvconf.bak ]] && mv $resolvconf.bak $resolvconf;"
+        traphook="${traphook}[[ -f $resolvconf.bak || -h $resolvconf.bak ]] && mv $resolvconf.bak $resolvconf;"
     fi
 
     if ! [ -f $root/proc/mounts ]; then
