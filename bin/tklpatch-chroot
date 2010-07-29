@@ -39,9 +39,23 @@ command=$@
 
 
 if [ ! "$root" == "/" ]; then
-    mount -t proc proc-chroot $root/proc
-    mount -t devpts devpts-chroot $root/dev/pts
-    trap "(umount devpts-chroot && umount proc-chroot) >& /dev/null;" INT TERM EXIT
+    resolvconf=$root/etc/resolv.conf
+    if ! [ -f $resolvconf.bak ]; then
+        mv $resolvconf $resolvconf.bak
+        cp /etc/resolv.conf $resolvconf
+        traphook="[[ -f $resolvconf.bak || -h $resolvconf.bak ]] && mv $resolvconf.bak $resolvconf;"
+    fi
+
+    if ! [ -f $root/proc/mounts ]; then
+        mount -t proc proc-chroot $root/proc
+        mount -t devpts devpts-chroot $root/dev/pts
+
+        traphook="${traphook}(umount devpts-chroot && umount proc-chroot) >& /dev/null;"
+    fi
+    
+    if [ -n "$traphook" ]; then
+        trap "$traphook" INT TERM EXIT
+    fi
 fi
 
 echo "# chroot execute: $command"
