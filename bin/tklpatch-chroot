@@ -175,12 +175,12 @@ if [ ! "$root" == "/" ]; then
         traphook="rm $root/sbin/initctl; chroot $root dpkg-divert --local --rename --remove /sbin/initctl;"
     fi
 
-    resolvconf=$root/etc/resolv.conf
     if ! [ -f $root/etc/debian_chroot ]; then
         echo tklpatch > $root/etc/debian_chroot
-        traphook="${traphook}rm -f /etc/debian_chroot;"
+        traphook="${traphook}rm -f $root/etc/debian_chroot;"
     fi
 
+    resolvconf=$root/etc/resolv.conf
     if ! [ -f $resolvconf.bak ]; then
         mv $resolvconf $resolvconf.bak
         cp /etc/resolv.conf $resolvconf
