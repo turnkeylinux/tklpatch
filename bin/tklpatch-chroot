@@ -199,7 +199,7 @@ if [ ! "$root" == "/" ]; then
     fi
 fi
 
-echo "# chroot execute: $command"
+echo "# chroot execute: $command" 1>&2
 bin=$(which chroot)
 $bin $root env -i \
     TERM=$TERM \
