@@ -107,6 +107,9 @@ if [ -f $patch_dir/conf ]; then
     [ -x $patch_dir/conf ] && tklpatch-apply-conf $rootfs $patch_dir/conf
 fi
 
+echo "# cleaning up stray files"
+tklpatch-apply-cleanup $rootfs
+
 [ -d "$patch_tmp" ] && rm -rf $patch_tmp
 
 exit 0

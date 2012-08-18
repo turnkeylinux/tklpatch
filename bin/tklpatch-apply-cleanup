@@ -1,0 +1,31 @@
+#!/bin/bash
+# Copyright (c) 2012 Liraz Siri <liraz@turnkeylinux.org> - all rights reserved
+
+CLEANUP='/var/log/dpkg.log /var/log/apt/* /var/lib/apt/lists/* /var/cache/apt/archives/*.deb /var/cache/apt/*.bin'
+
+fatal() {
+    echo "fatal: $@" 1>&2
+    exit 1
+}
+
+usage() {
+cat<<EOF
+Syntax: $(basename $0) rootfs-dir
+Cleans up caches and leftover files in patched rootfs
+
+Environment variables:
+
+    TKLPATCH_DEBUG       Turn on debugging.
+EOF
+    exit 1
+}
+if [[ "$#" != "1" ]]; then
+    usage
+fi
+
+[ -n "$TKLPATCH_DEBUG" ] && set -x
+rootfs=$1
+
+[ -d $rootfs ] || fatal "no such directory: $rootfs"
+
+tklpatch-chroot $rootfs "rm -rf $CLEANUP"
