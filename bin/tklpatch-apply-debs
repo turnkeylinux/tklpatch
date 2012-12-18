@@ -33,7 +33,8 @@ debs=$2
 
 if [ -n "$debs" ]; then
     [ -d "$debs" ] || fatal "no such directory: $debs"
-    packages=$(find $debs -type f -name '*.deb')
+    arch=$(dpkg --print-architecture)
+    packages=$(find $debs -type f | grep -e all.deb$ -e ${arch}.deb$)
     packages_count=$(echo $packages | wc -w)
 
     if [ "$packages_count" != 0 ]; then
