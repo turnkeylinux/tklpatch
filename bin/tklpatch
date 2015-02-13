@@ -12,7 +12,7 @@ Syntax: $(basename $0) image.iso patch-dir|patch.tar.gz
 Patch ISO build of appliance by applying a patch.
 
 TKLPatch is a set of shell scripts which provide a simple way to customize and
-extend any appliance in the TurnKey Linux virtual appliance library. It's
+extend any appliance in the TurnKey GNU/Linux virtual appliance library. It's
 designed in the Unix tradition as a modular collection of simple sub-scripts.
 
 This is the top high level script, which calls:

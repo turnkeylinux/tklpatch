@@ -9,4 +9,4 @@ Package: tklpatch
 Architecture: any
 Depends: squashfs-tools, genisoimage, tar, gzip
 Section: misc
-Description: TurnKey Linux Customization Mechanism
+Description: TurnKey GNU/Linux Customization Mechanism
