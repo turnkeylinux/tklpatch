@@ -6,7 +6,7 @@ Build-Depends: debhelper (>> 4.2.0)
 Standards-Version: 3.6.1
 
 Package: tklpatch
-Architecture: any
+Architecture: all
 Depends: squashfs-tools, genisoimage, tar, gzip
 Section: misc
 Description: TurnKey GNU/Linux Customization Mechanism
