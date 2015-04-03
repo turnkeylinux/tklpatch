@@ -2,9 +2,9 @@
 # Copyright (c) 2009 Alon Swartz <alon@turnkeylinux.org> - all rights reserved
 
 write_dummy_initctl() {
-    root=$1
+    fpath=$1
 
-    cat>$root/sbin/initctl<<'EOF'
+    cat>$fpath<<'EOF'
 #!/bin/bash
 
 set -e
@@ -151,7 +151,7 @@ esac
 
 exit
 EOF
-    chmod +x $root/sbin/initctl
+    chmod +x $fpath
 }
 
 fatal() {
@@ -192,10 +192,11 @@ command=$@
 
 
 if [ ! "$root" == "/" ]; then
-    if ! [ -f $root/sbin/initctl.distrib ]; then
-        chroot $root dpkg-divert --local --rename --add /sbin/initctl 
-        write_dummy_initctl $root
-        traphook="rm $root/sbin/initctl; chroot $root dpkg-divert --local --rename --remove /sbin/initctl;"
+    initctl=/sbin/initctl
+    if [ -f "$root/$initctl" ] && ! [ -f "$root/${initctl}.distrib" ]; then
+        chroot $root dpkg-divert --local --rename --add $initctl
+        write_dummy_initctl $root/$initctl
+        traphook="rm $root/$initctl; chroot $root dpkg-divert --local --rename --remove $initctl;"
     fi
 
     if ! [ -f $root/etc/debian_chroot ]; then
