@@ -214,7 +214,7 @@ if [ ! "$root" == "/" ]; then
         mount -t proc proc-chroot $root/proc
         mount -t devpts devpts-chroot $root/dev/pts
 
-        traphook="${traphook}(umount devpts-chroot && umount proc-chroot) >& /dev/null;"
+        traphook="${traphook}umount devpts-chroot && umount proc-chroot;"
     fi
     
     if [ -n "$traphook" ]; then
