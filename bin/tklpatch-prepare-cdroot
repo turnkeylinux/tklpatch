@@ -48,7 +48,12 @@ TIMEOUT 1
 EOF
 fi
 
-cp $rootfs/usr/lib/syslinux/isolinux.bin $cdroot/isolinux
+cp $rootfs/usr/lib/ISOLINUX/isolinux.bin $cdroot/isolinux
+cp $rootfs/usr/lib/syslinux/modules/bios/chain.c32 $cdroot/isolinux
+cp $rootfs/usr/lib/syslinux/modules/bios/ldlinux.c32 $cdroot/isolinux
+cp $rootfs/usr/lib/syslinux/modules/bios/libcom32.c32 $cdroot/isolinux
+cp $rootfs/usr/lib/syslinux/modules/bios/vesamenu.c32 $cdroot/isolinux
+cp $rootfs/usr/lib/syslinux/modules/bios/gfxboot.c32 $cdroot/isolinux
 cp $rootfs/boot/$(basename $(readlink $rootfs/vmlinuz)) $cdroot/casper/vmlinuz
 cp $rootfs/boot/$(basename $(readlink $rootfs/initrd.img)) $cdroot/casper/initrd.gz
 
