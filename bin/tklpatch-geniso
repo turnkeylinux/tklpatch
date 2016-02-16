@@ -49,4 +49,5 @@ genisoimage -o $newimage -r -J -l \
         -no-emul-boot \
         -boot-load-size 4 \
         -boot-info-table $cdroot/
+isohybrid $newimage
 
