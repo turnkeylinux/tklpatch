@@ -11,6 +11,7 @@ Architecture: all
 Depends:
  genisoimage,
  gzip,
+ ${misc:Depends},
  squashfs-tools,
  tar,
 Section: misc
