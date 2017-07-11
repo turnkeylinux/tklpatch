@@ -2,11 +2,16 @@ Source: tklpatch
 Section: misc
 Priority: optional
 Maintainer: Alon Swartz <alon@turnkeylinux.org>
-Build-Depends: debhelper (>= 10)
+Build-Depends:
+ debhelper (>= 10),
 Standards-Version: 4.0.0
 
 Package: tklpatch
 Architecture: all
-Depends: squashfs-tools, genisoimage, tar, gzip
+Depends:
+ genisoimage,
+ gzip,
+ squashfs-tools,
+ tar,
 Section: misc
 Description: TurnKey GNU/Linux Customization Mechanism
