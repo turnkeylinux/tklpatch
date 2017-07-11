@@ -14,5 +14,4 @@ Depends:
  genisoimage,
  ${misc:Depends},
  squashfs-tools,
-Section: misc
 Description: TurnKey GNU/Linux Customization Mechanism
