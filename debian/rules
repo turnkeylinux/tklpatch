@@ -1,31 +1,9 @@
 #! /usr/bin/make -f
 
-progname=$(shell awk '/^Source/ {print $$2}' debian/control)
-buildroot=debian/$(progname)
-prefix=$(buildroot)/usr
+include /usr/share/dpkg/pkg-info.mk
 
-clean:
-	dh_clean
+%:
+	dh $@ --with python2 --buildsystem=makefile
 
-build:
-	true
-
-install: 
-	dh_testdir
-	dh_testroot
-	dh_clean -k
-	mkdir -p $(prefix)
-	$(MAKE) install prefix=$(prefix)
-
-binary-indep: install
-	dh_testdir
-	dh_testroot
-	dh_installdeb
-	dh_gencontrol
-	dh_md5sums 
-	dh_builddeb
-
-binary-arch: install
-
-binary: binary-indep binary-arch
-.PHONY: clean binary-indep binary-arch binary install
+override_dh_auto_install:
+	dh_auto_install -- prefix=debian/$(DEB_SOURCE)/usr
