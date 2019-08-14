@@ -50,5 +50,5 @@ mkdir -p $name.mount
 mount -o loop $isofile $name.mount
 
 trap "(umount $name.mount && rmdir $name.mount) >& /dev/null" INT TERM EXIT
-unsquashfs -d $rootfs $name.mount/casper/*root.squashfs
+unsquashfs -d $rootfs $name.mount/live/*root.squashfs
 cp -a $name.mount/isolinux $cdroot/

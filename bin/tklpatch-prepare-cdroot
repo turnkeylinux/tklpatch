@@ -38,12 +38,12 @@ fi
 [ -d $rootfs ] || fatal "no such directory: $rootfs"
 
 echo "# preparing cdroot"
-mkdir -p $cdroot/casper
+mkdir -p $cdroot/live
 mkdir -p $cdroot/isolinux
 
 if [ ! -f $cdroot/isolinux/isolinux.cfg ]; then
     cat>$cdroot/isolinux/isolinux.cfg<<'EOF'
-DEFAULT /casper/vmlinuz boot=casper initrd=/casper/initrd.gz ramdisk_size=1048576 root=/dev/ram rw showmounts debug toram=196 --
+DEFAULT /live/vmlinuz boot=live initrd=/live/initrd.gz ramdisk_size=1048576 root=/dev/ram rw showmounts debug toram=196 --
 TIMEOUT 1
 EOF
 fi
@@ -54,8 +54,8 @@ cp $rootfs/usr/lib/syslinux/modules/bios/ldlinux.c32 $cdroot/isolinux
 cp $rootfs/usr/lib/syslinux/modules/bios/libcom32.c32 $cdroot/isolinux
 cp $rootfs/usr/lib/syslinux/modules/bios/vesamenu.c32 $cdroot/isolinux
 cp $rootfs/usr/lib/syslinux/modules/bios/gfxboot.c32 $cdroot/isolinux
-cp $rootfs/boot/$(basename $(readlink $rootfs/vmlinuz)) $cdroot/casper/vmlinuz
-cp $rootfs/boot/$(basename $(readlink $rootfs/initrd.img)) $cdroot/casper/initrd.gz
+cp $rootfs/boot/$(basename $(readlink $rootfs/vmlinuz)) $cdroot/live/vmlinuz
+cp $rootfs/boot/$(basename $(readlink $rootfs/initrd.img)) $cdroot/live/initrd.gz
 
-mksquashfs $rootfs $cdroot/casper/10root.squashfs -no-sparse
+mksquashfs $rootfs $cdroot/live/10root.squashfs -no-sparse
 
