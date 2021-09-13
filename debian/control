@@ -4,9 +4,7 @@ Priority: optional
 Maintainer: Alon Swartz <alon@turnkeylinux.org>
 Build-Depends:
  debhelper (>= 10),
- python-all (>= 2.6.6-3~),
 Standards-Version: 4.0.0
-X-Python-Version: >= 2.6
 
 Package: tklpatch
 Architecture: all
